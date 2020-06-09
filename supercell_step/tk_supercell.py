@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """The graphical part of a Supercell step"""
 
 import seamm
@@ -96,7 +97,8 @@ class TkSupercell(seamm.TkNode):
             defaultbutton='OK',
             master=self.toplevel,
             title='Edit Supercell step',
-            command=self.handle_dialog)
+            command=self.handle_dialog
+        )
         self.dialog.withdraw()
 
         # The information about widgets is held in self['xxxx'], i.e. this
@@ -208,7 +210,8 @@ class TkSupercell(seamm.TkNode):
         if result != "OK":
             self.dialog.deactivate(result)
             raise RuntimeError(
-                "Don't recognize dialog result '{}'".format(result))
+                "Don't recognize dialog result '{}'".format(result)
+            )
 
         self.dialog.deactivate(result)
         # Shortcut for parameters

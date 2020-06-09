@@ -78,14 +78,41 @@ class SupercellParameters(seamm.Parameters):
     """
 
     parameters = {
-        "time": {
-            "default": 100.0,
-            "kind": "float",
-            "default_units": "ps",
+        "na": {
+            "default": 2,
+            "kind": "integer",
+            "default_units": None,
             "enumeration": tuple(),
-            "format_string": ".1f",
-            "description": "Simulation time:",
-            "help_text": ("The time to simulate in the dynamics run.")
+            "format_string": "d",
+            "description": "Number of cells in 'a' direction:",
+            "help_text": (
+                "The number of cells to create in the 'a' lattice "
+                "direction."
+            )
+        },
+        "nb": {
+            "default": 2,
+            "kind": "integer",
+            "default_units": None,
+            "enumeration": tuple(),
+            "format_string": "d",
+            "description": "Number of cells in 'b' direction:",
+            "help_text": (
+                "The number of cells to create in the 'b' lattice "
+                "direction."
+            )
+        },
+        "nc": {
+            "default": 2,
+            "kind": "integer",
+            "default_units": None,
+            "enumeration": tuple(),
+            "format_string": "d",
+            "description": "Number of cells in 'c' direction:",
+            "help_text": (
+                "The number of cells to create in the 'c' lattice "
+                "direction."
+            )
         },
     }
 

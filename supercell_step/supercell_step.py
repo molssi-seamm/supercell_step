@@ -28,11 +28,8 @@ class SupercellStep(object):
     """
 
     my_description = {
-        'description':
-            (
-                'An interface for Supercell'
-            ),
-        'group': 'Simulations',
+        'description': ('An interface for Supercell'),
+        'group': 'Building',
         'name': 'Supercell'
     }
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Non-graphical part of the Supercell step in a SEAMM flowchart
 """
 
@@ -56,10 +57,8 @@ class Supercell(seamm.Node):
     TkSupercell,
     Supercell, SupercellParameters
     """
-    def __init__(self,
-                 flowchart=None,
-                 title='Supercell',
-                 extension=None):
+
+    def __init__(self, flowchart=None, title='Supercell', extension=None):
         """A step for Supercell in a SEAMM flowchart.
 
         You may wish to change the title above, which is the string displayed
@@ -113,9 +112,8 @@ class Supercell(seamm.Node):
             logger.setLevel(self.options.supercell_step_log_level)
 
         super().__init__(
-            flowchart=flowchart,
-            title='Supercell',
-            extension=extension)
+            flowchart=flowchart, title='Supercell', extension=extension
+        )
 
         self.parameters = supercell_step.SupercellParameters()
 
@@ -150,8 +148,7 @@ class Supercell(seamm.Node):
         if not P:
             P = self.parameters.values_to_dict()
 
-        text = ('Please replace this with a short summary of the '
-                'Supercell step, including key parameters.')
+        text = ('Create a {na} x {nb} x {nc} supercell from the current cell')
 
         return self.header + '\n' + __(text, **P, indent=4 * ' ').__str__()
 
@@ -179,9 +176,15 @@ class Supercell(seamm.Node):
         # this!
         for key in P:
             print('{:>15s} = {}'.format(key, P[key]))
-            printer.normal(__(
-                '{key:>15s} = {value}', key=key, value=P[key],
-                indent=4*' ', wrap=False, dedent=False)
+            printer.normal(
+                __(
+                    '{key:>15s} = {value}',
+                    key=key,
+                    value=P[key],
+                    indent=4 * ' ',
+                    wrap=False,
+                    dedent=False
+                )
             )
 
         # Analyze the results
@@ -200,8 +203,12 @@ class Supercell(seamm.Node):
             indent: str
                 An extra indentation for the output
         """
-        printer.normal(__(
-            'This is a placeholder for the results from the '
-            'Supercell step', indent=4*' ', wrap=True,
-            dedent=False
-        ))
+        printer.normal(
+            __(
+                'This is a placeholder for the results from the '
+                'Supercell step',
+                indent=4 * ' ',
+                wrap=True,
+                dedent=False
+            )
+        )
