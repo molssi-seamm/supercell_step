@@ -91,23 +91,12 @@ class TkSupercell(seamm.TkNode):
         TkSupercell.reset_dialog
         """
 
-        self.dialog = Pmw.Dialog(
-            self.toplevel,
-            buttons=('OK', 'Help', 'Cancel'),
-            defaultbutton='OK',
-            master=self.toplevel,
-            title='Edit Supercell step',
-            command=self.handle_dialog
-        )
-        self.dialog.withdraw()
+        super().create_dialog(title='Edit Supercell step')
 
         # The information about widgets is held in self['xxxx'], i.e. this
         # class is in part a dictionary of widgets. This makes accessing
         # the widgets easier and allows loops, etc.
 
-        # Create a frame to hold everything. This is always called 'frame'.
-        self['frame'] = ttk.Frame(self.dialog.interior())
-        self['frame'].pack(expand=tk.YES, fill=tk.BOTH)
         # Shortcut for parameters
         P = self.node.parameters
 

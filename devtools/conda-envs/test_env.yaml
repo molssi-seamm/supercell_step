@@ -11,5 +11,11 @@ dependencies:
 
     # Pip-only installs
   - pip:
+    - seamm_util>=0.9
+    - seamm>=0.9
+    - seamm-widgets>=0.9
+
+      # Testing
+    - yapf
     - codecov
 
