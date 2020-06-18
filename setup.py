@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 supercell_step
 A step for building supercells of periodic systems.
 """
+
 import sys
 from setuptools import setup, find_packages
 import versioneer
@@ -21,12 +21,8 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'Pmw>=2.0.1<3',
-    'seamm>=0.2.0<1',
-    'seamm-widgets>=0.2.1<1',
-    'seamm-util>=0.2.1<1',
-]
+with open('requirements_install.txt') as fd:
+    requirements = fd.read()
 
 setup(
     name='supercell_step',
