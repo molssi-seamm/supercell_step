@@ -111,7 +111,7 @@ class TkSupercell(seamm.TkNode):
         # Shortcut for parameters
         P = self.node.parameters
 
-        # The create the widgets
+        # Then create the widgets
         for key in P:
             self[key] = P[key].widget(self['frame'])
 

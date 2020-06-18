@@ -25,14 +25,6 @@ job = printing.getPrinter()
 printer = printing.getPrinter('Supercell')
 
 
-def upcase(string):
-    """Return an uppercase version of the string.
-
-    Used for the type argument in argparse
-    """
-    return string.upper()
-
-
 class Supercell(seamm.Node):
     """
     The non-graphical part of a Supercell step in a flowchart.
@@ -101,7 +93,7 @@ class Supercell(seamm.Node):
             choices=[
                 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'
             ],
-            type=upcase,
+            type=str.upper,
             help="the logging level for the Supercell step"
         )
 
@@ -153,11 +145,10 @@ class Supercell(seamm.Node):
         return self.header + '\n' + __(text, **P, indent=4 * ' ').__str__()
 
     def run(self):
-        """Run a Supercell step.
+        """Create the supercell.
 
         Returns
         -------
-
         next_node : seamm.Node
             The next node object in the flowchart.
 
@@ -172,43 +163,121 @@ class Supercell(seamm.Node):
         # Print what we are doing
         printer.important(__(self.description_text(P), indent=self.indent))
 
-        # Temporary code just to print the parameters. You will need to change
-        # this!
-        for key in P:
-            print('{:>15s} = {}'.format(key, P[key]))
-            printer.normal(
-                __(
-                    '{key:>15s} = {value}',
-                    key=key,
-                    value=P[key],
-                    indent=4 * ' ',
-                    wrap=False,
-                    dedent=False
-                )
+        # Get the current system
+        if data.structure is None:
+            logger.error('Solvate: there is no system!')
+            raise RuntimeError('Solvate: there is no system to solvate!')
+
+        system = data.structure
+        atoms = system['atoms']
+        n_atoms = len(atoms['elements'])
+        bonds = system['bonds']
+
+        a, b, c, alpha, beta, gamma = system['cell']
+        if alpha != 90 or beta != 90 or gamma != 90:
+            raise NotImplementedError(
+                'Supercell cannot handle non-orthorhombic cells yet'
             )
+        lx = int(a * 1000) / 1000
+        ly = int(b * 1000) / 1000
+        lz = int(c * 1000) / 1000
+
+        na = P['na']
+        nb = P['nb']
+        nc = P['nc']
+
+        # Expand the cell along a
+        xyz = list(atoms['coordinates'])
+        tmp_bonds = list(bonds)
+        for _ in range(1, na):
+            # Atomic properties
+            for key in atoms:
+                if key == 'coordinates':
+                    tmp = []
+                    for x, y, z in xyz:
+                        tmp.append((x + lx, y, z))
+                    xyz = tmp
+                    atoms[key].extend(xyz)
+                else:
+                    atoms[key].extend(atoms[key][0:n_atoms])
+            # bonds
+            tmp = []
+            for i, j, order in tmp_bonds:
+                tmp.append((i + n_atoms, j + n_atoms, order))
+            tmp_bonds = tmp
+            bonds.extend(tmp_bonds)
+
+        # expand the cell along b
+        n_atoms = len(atoms['elements'])
+        xyz = list(atoms['coordinates'])
+        tmp_bonds = list(bonds)
+        for _ in range(1, nb):
+            # Atomic properties
+            for key in atoms:
+                if key == 'coordinates':
+                    tmp = []
+                    for x, y, z in xyz:
+                        tmp.append((x, y + ly, z))
+                    xyz = tmp
+                    atoms[key].extend(xyz)
+                else:
+                    atoms[key].extend(atoms[key][0:n_atoms])
+            # bonds
+            tmp = []
+            for i, j, order in tmp_bonds:
+                tmp.append((i + n_atoms, j + n_atoms, order))
+            tmp_bonds = tmp
+            bonds.extend(tmp_bonds)
+
+        # expand the cell along c
+        n_atoms = len(atoms['elements'])
+        xyz = list(atoms['coordinates'])
+        tmp_bonds = list(bonds)
+        for _ in range(1, nc):
+            # Atomic properties
+            for key in atoms:
+                if key == 'coordinates':
+                    tmp = []
+                    for x, y, z in xyz:
+                        tmp.append((x, y, z + lz))
+                    xyz = tmp
+                    atoms[key].extend(xyz)
+                else:
+                    atoms[key].extend(atoms[key][0:n_atoms])
+            # bonds
+            tmp = []
+            for i, j, order in tmp_bonds:
+                tmp.append((i + n_atoms, j + n_atoms, order))
+            tmp_bonds = tmp
+            bonds.extend(tmp_bonds)
+
+        # Update the cell
+        n_atoms = len(atoms['elements'])
+        a *= na
+        b *= nb
+        c *= nc
+        system['cell'] = (a, b, c, alpha, beta, gamma)
+
+        # Print what we did
+        printer.important(
+            __(
+                (
+                    f'Created a {na} x {nb} x {nc} supercell containing '
+                    f'{n_atoms} atoms with cell parameters:'
+                ),
+                indent=self.indent + 4 * ' ',
+            )
+        )
+        tmp = self.indent + 8 * ' '
+        printer.important('')
+        printer.important(tmp + f'    a = {a:8.3f} Å')
+        printer.important(tmp + f'    b = {b:8.3f}')
+        printer.important(tmp + f'    c = {c:8.3f}')
+        printer.important(tmp + f'alpha = {alpha:7.2f} degrees')
+        printer.important(tmp + f' beta = {beta:7.2f}')
+        printer.important(tmp + f'gamma = {gamma:7.2f}')
 
         # Analyze the results
         self.analyze()
 
         return next_node
-
-    def analyze(self, indent='', **kwargs):
-        """Do any analysis of the output from this step.
-
-        Also print important results to the local step.out file using
-        'printer'.
-
-        Parameters
-        ----------
-            indent: str
-                An extra indentation for the output
-        """
-        printer.normal(
-            __(
-                'This is a placeholder for the results from the '
-                'Supercell step',
-                indent=4 * ' ',
-                wrap=True,
-                dedent=False
-            )
-        )
