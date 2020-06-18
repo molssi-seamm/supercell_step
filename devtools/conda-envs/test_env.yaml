@@ -6,8 +6,11 @@ dependencies:
   - pip
 
     # Testing
+  - coverage
+  - flake8
   - pytest
   - pytest-cov
+  - pytest-runner
 
     # Pip-only installs
   - pip:
