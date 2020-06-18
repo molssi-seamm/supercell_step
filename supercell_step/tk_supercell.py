@@ -6,10 +6,8 @@ import seamm
 from seamm_util import ureg, Q_, units_class  # noqa: F401
 import seamm_widgets as sw
 import supercell_step  # noqa: F401
-import Pmw
 import pprint  # noqa: F401
 import tkinter as tk
-import tkinter.ttk as ttk
 
 
 class TkSupercell(seamm.TkNode):
