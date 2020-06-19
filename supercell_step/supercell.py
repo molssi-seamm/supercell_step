@@ -198,6 +198,10 @@ class Supercell(seamm.Node):
                         tmp.append((x + lx, y, z))
                     xyz = tmp
                     atoms[key].extend(xyz)
+                elif key == 'atom_types':
+                    types = atoms[key]
+                    for type_ in types:
+                        types[type_].extend(atoms[key][type_][0:n_atoms])
                 else:
                     atoms[key].extend(atoms[key][0:n_atoms])
             # bonds
@@ -220,6 +224,10 @@ class Supercell(seamm.Node):
                         tmp.append((x, y + ly, z))
                     xyz = tmp
                     atoms[key].extend(xyz)
+                elif key == 'atom_types':
+                    types = atoms[key]
+                    for type_ in types:
+                        types[type_].extend(atoms[key][type_][0:n_atoms])
                 else:
                     atoms[key].extend(atoms[key][0:n_atoms])
             # bonds
@@ -242,6 +250,10 @@ class Supercell(seamm.Node):
                         tmp.append((x, y, z + lz))
                     xyz = tmp
                     atoms[key].extend(xyz)
+                elif key == 'atom_types':
+                    types = atoms[key]
+                    for type_ in types:
+                        types[type_].extend(atoms[key][type_][0:n_atoms])
                 else:
                     atoms[key].extend(atoms[key][0:n_atoms])
             # bonds
