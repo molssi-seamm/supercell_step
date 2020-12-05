@@ -3,7 +3,6 @@
 """Non-graphical part of the Supercell step in a SEAMM flowchart
 """
 
-import configargparse
 import logging
 import seamm
 from seamm import data  # noqa: F401
@@ -31,9 +30,6 @@ class Supercell(seamm.Node):
 
     Attributes
     ----------
-    parser : configargparse.ArgParser
-        The parser object.
-
     options : tuple
         It contains a two item tuple containing the populated namespace and the
         list of remaining argument strings.
@@ -66,45 +62,11 @@ class Supercell(seamm.Node):
             extension: None
                 Not yet implemented
         """
-        logger.debug('Creating Supercell {}'.format(self))
-
-        # Argument/config parsing
-        self.parser = configargparse.ArgParser(
-            auto_env_var_prefix='',
-            default_config_files=[
-                '/etc/seamm/supercell_step.ini',
-                '/etc/seamm/seamm.ini',
-                '~/.seamm/supercell_step.ini',
-                '~/.seamm/seamm.ini',
-            ]
-        )
-
-        self.parser.add_argument(
-            '--seamm-configfile',
-            is_config_file=True,
-            default=None,
-            help='a configuration file to override others'
-        )
-
-        # Options for this plugin
-        self.parser.add_argument(
-            "--supercell-step-log-level",
-            default=configargparse.SUPPRESS,
-            choices=[
-                'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'
-            ],
-            type=str.upper,
-            help="the logging level for the Supercell step"
-        )
-
-        self.options, self.unknown = self.parser.parse_known_args()
-
-        # Set the logging level for this module if requested
-        if 'supercell_step_log_level' in self.options:
-            logger.setLevel(self.options.supercell_step_log_level)
-
         super().__init__(
-            flowchart=flowchart, title='Supercell', extension=extension
+            flowchart=flowchart,
+            title='Supercell',
+            extension=extension,
+            logger=logger
         )
 
         self.parameters = supercell_step.SupercellParameters()
@@ -165,8 +127,8 @@ class Supercell(seamm.Node):
 
         # Get the current system
         if data.structure is None:
-            logger.error('Solvate: there is no system!')
-            raise RuntimeError('Solvate: there is no system to solvate!')
+            self.logger.error('Supercell: there is no system!')
+            raise RuntimeError('Supercell: there is no system to solvate!')
 
         system = data.structure
         atoms = system['atoms']
