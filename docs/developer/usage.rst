@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use the Supercell Step in a project::
+To use the Supercell plug-in in a project::
 
     import supercell_step
