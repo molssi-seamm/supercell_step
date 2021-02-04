@@ -90,7 +90,8 @@ jobs:
     - name: Echo details
       env:
         REF: ${{ github.ref }}
-      run: echo $REF
+        CONTAINS: ${{ contains(github.ref, 'dev') }}
+      run: echo $REF $CONTAINS
     - uses: actions/checkout@v1
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
