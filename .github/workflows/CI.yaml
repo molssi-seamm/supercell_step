@@ -21,7 +21,7 @@ jobs:
     - name: Echo details
       env:
         REF: ${{ github.ref }}
-      run: echo "github reference: ${{ github.ref }}"
+      run: echo $REF
     - uses: actions/checkout@v1
     - name: Additional info about the build
       shell: bash
