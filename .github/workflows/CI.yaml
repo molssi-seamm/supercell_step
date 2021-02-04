@@ -18,6 +18,10 @@ jobs:
     name: Lint ubuntu-latest Py3.8
     runs-on: ubuntu-latest
     steps:
+    - name: Echo details
+      env:
+        REF: ${{ github.ref }}
+      run: echo "github reference: ${{ github.ref }}"
     - uses: actions/checkout@v1
     - name: Additional info about the build
       shell: bash
