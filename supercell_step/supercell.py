@@ -5,7 +5,6 @@
 
 import logging
 import seamm
-from seamm_util import ureg, Q_  # noqa: F401
 import seamm_util.printing as printing
 from seamm_util.printing import FormattedText as __
 import supercell_step

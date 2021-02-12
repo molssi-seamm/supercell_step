@@ -3,10 +3,7 @@
 """The graphical part of a Supercell step"""
 
 import seamm
-from seamm_util import ureg, Q_, units_class  # noqa: F401
 import seamm_widgets as sw
-import supercell_step  # noqa: F401
-import pprint  # noqa: F401
 import tkinter as tk
 
 
