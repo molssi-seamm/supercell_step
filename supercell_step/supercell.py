@@ -4,6 +4,8 @@
 """
 
 import logging
+import pprint  # noqa: F401
+
 import seamm
 import seamm_util.printing as printing
 from seamm_util.printing import FormattedText as __
@@ -19,7 +21,7 @@ import supercell_step
 
 logger = logging.getLogger(__name__)
 job = printing.getPrinter()
-printer = printing.getPrinter('Supercell')
+printer = printing.getPrinter("Supercell")
 
 
 class Supercell(seamm.Node):
@@ -45,11 +47,7 @@ class Supercell(seamm.Node):
     """
 
     def __init__(
-        self,
-        flowchart=None,
-        title='Supercell',
-        extension=None,
-        logger=logger
+        self, flowchart=None, title="Supercell", extension=None, logger=logger
     ):
         """A step for Supercell in a SEAMM flowchart.
 
@@ -68,23 +66,21 @@ class Supercell(seamm.Node):
         """
         super().__init__(
             flowchart=flowchart,
-            title='Supercell',
+            title="Supercell",
             extension=extension,
-            logger=logger
+            logger=logger,
         )
 
         self.parameters = supercell_step.SupercellParameters()
 
     @property
     def version(self):
-        """The semantic version of this module.
-        """
+        """The semantic version of this module."""
         return supercell_step.__version__
 
     @property
     def git_revision(self):
-        """The git version of this module.
-        """
+        """The git version of this module."""
         return supercell_step.__git_revision__
 
     def description_text(self, P=None):
@@ -106,9 +102,9 @@ class Supercell(seamm.Node):
         if not P:
             P = self.parameters.values_to_dict()
 
-        text = ('Create a {na} x {nb} x {nc} supercell from the current cell')
+        text = "Create a {na} x {nb} x {nc} supercell from the current cell"
 
-        return self.header + '\n' + __(text, **P, indent=4 * ' ').__str__()
+        return self.header + "\n" + __(text, **P, indent=4 * " ").__str__()
 
     def run(self):
         """Create the supercell.
@@ -137,90 +133,96 @@ class Supercell(seamm.Node):
         printer.important(__(self.description_text(P), indent=self.indent))
 
         # Get the current system
-        system_db = self.get_variable('_system_db')
+        system_db = self.get_variable("_system_db")
         configuration = system_db.system.configuration
+
+        na = P["na"]
+        nb = P["nb"]
+        nc = P["nc"]
+        logger.debug(f"making {na} x {nb} x {nc} supercell")
+
+        # Lower the symmetry
+        configuration.lower_symmetry()
 
         atoms = configuration.atoms
         bonds = configuration.bonds
         cell = configuration.cell
 
-        na = P['na']
-        nb = P['nb']
-        nc = P['nc']
-        logger.debug(f"making {na} x {nb} x {nc} supercell")
-
         # Get a copy of the initial atom and bond data
         atom_data = atoms.get_as_dict()
         # index of atoms to use for bonds
-        index = {j: i for i, j in enumerate(atom_data['id'])}
-        del atom_data['id']
+        index = {j: i for i, j in enumerate(atom_data["id"])}
+        del atom_data["id"]
         bond_data = bonds.get_as_dict()
-        del bond_data['id']
+        del bond_data["id"]
 
         # Get the initial fractional coordinates, adjusting to the final cell
         xyz0 = [
             [x / na, y / nb, z / nc]
-            for x, y, z in atoms.get_coordinates(fractionals=True)
+            for x, y, z in zip(atom_data["x"], atom_data["y"], atom_data["z"])
         ]
         xyzs = list(xyz0)
 
         # Expand the cell along 'a'
-        for ia in range(1, na):
-            # Coordinates
-            for x, y, z in xyz0:
-                xyzs.append([x + ia / na, y, z])
-            # Atoms
-            ids = atoms.append(**atom_data)
-            # Bonds
-            bond_data['i'] = [ids[index[i]] for i in bond_data['i']]
-            bond_data['j'] = [ids[index[j]] for j in bond_data['j']]
-            bonds.append(**bond_data)
+        if na > 1:
+            for ia in range(1, na):
+                # Coordinates
+                for x, y, z in xyz0:
+                    xyzs.append([x + ia / na, y, z])
+                # Atoms
+                ids = atoms.append(**atom_data)
+                # Bonds
+                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
+                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bonds.append(**bond_data)
 
-        # Get a copy of the current atom and bond data
-        atom_data = atoms.get_as_dict()
-        # index of atoms to use for bonds
-        index = {j: i for i, j in enumerate(atom_data['id'])}
-        del atom_data['id']
-        bond_data = bonds.get_as_dict()
-        del bond_data['id']
+            # Get a copy of the current atom and bond data
+            atom_data = atoms.get_as_dict()
+            # index of atoms to use for bonds
+            index = {j: i for i, j in enumerate(atom_data["id"])}
+            del atom_data["id"]
+            bond_data = bonds.get_as_dict()
+            del bond_data["id"]
 
-        # Keep a copy of the current coordinates
-        xyz0 = list(xyzs)
+            # Keep a copy of the current coordinates
+            xyz0 = list(xyzs)
 
         # Expand the cell along 'b'
-        for ib in range(1, nb):
-            # Coordinates
-            for x, y, z in xyz0:
-                xyzs.append([x, y + ib / nb, z])
-            # Atoms
-            ids = atoms.append(**atom_data)
-            # Bonds
-            bond_data['i'] = [ids[index[i]] for i in bond_data['i']]
-            bond_data['j'] = [ids[index[j]] for j in bond_data['j']]
-            bonds.append(**bond_data)
+        if nb > 1:
+            for ib in range(1, nb):
+                # Coordinates
+                for x, y, z in xyz0:
+                    xyzs.append([x, y + ib / nb, z])
+                # Atoms
+                ids = atoms.append(**atom_data)
+                # Bonds
+                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
+                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bonds.append(**bond_data)
 
-        # Get a copy of the current atom and bond data
-        atom_data = atoms.get_as_dict()
-        # index of atoms to use for bonds
-        index = {j: i for i, j in enumerate(atom_data['id'])}
-        del atom_data['id']
-        bond_data = bonds.get_as_dict()
-        del bond_data['id']
+            # Get a copy of the current atom and bond data
+            atom_data = atoms.get_as_dict()
+            # index of atoms to use for bonds
+            index = {j: i for i, j in enumerate(atom_data["id"])}
+            del atom_data["id"]
+            bond_data = bonds.get_as_dict()
+            del bond_data["id"]
 
-        # Keep a copy of the current coordinates
-        xyz0 = list(xyzs)
+            # Keep a copy of the current coordinates
+            xyz0 = list(xyzs)
 
         # Expand the cell along 'c'
-        for ic in range(1, nc):
-            # Coordinates
-            for x, y, z in xyz0:
-                xyzs.append([x, y, z + ic / nc])
-            # Atoms
-            ids = atoms.append(**atom_data)
-            # Bonds
-            bond_data['i'] = [ids[index[i]] for i in bond_data['i']]
-            bond_data['j'] = [ids[index[j]] for j in bond_data['j']]
-            bonds.append(**bond_data)
+        if nc > 1:
+            for ic in range(1, nc):
+                # Coordinates
+                for x, y, z in xyz0:
+                    xyzs.append([x, y, z + ic / nc])
+                # Atoms
+                ids = atoms.append(**atom_data)
+                # Bonds
+                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
+                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bonds.append(**bond_data)
 
         # Update the cell
         a, b, c, alpha, beta, gamma = cell.parameters
@@ -239,21 +241,21 @@ class Supercell(seamm.Node):
         printer.important(
             __(
                 (
-                    f'Created a {na} x {nb} x {nc} supercell containing '
-                    f'{n_atoms} atoms with cell parameters:'
+                    f"Created a {na} x {nb} x {nc} supercell containing "
+                    f"{n_atoms} atoms with cell parameters:"
                 ),
-                indent=self.indent + 4 * ' ',
+                indent=self.indent + 4 * " ",
             )
         )
-        tmp = self.indent + 8 * ' '
-        printer.important('')
-        printer.important(tmp + f'    a = {a:8.3f} Å')
-        printer.important(tmp + f'    b = {b:8.3f}')
-        printer.important(tmp + f'    c = {c:8.3f}')
-        printer.important(tmp + f'alpha = {alpha:7.2f} degrees')
-        printer.important(tmp + f' beta = {beta:7.2f}')
-        printer.important(tmp + f'gamma = {gamma:7.2f}')
-        printer.important('')
+        tmp = self.indent + 8 * " "
+        printer.important("")
+        printer.important(tmp + f"    a = {a:8.3f} Å")
+        printer.important(tmp + f"    b = {b:8.3f}")
+        printer.important(tmp + f"    c = {c:8.3f}")
+        printer.important(tmp + f"alpha = {alpha:7.2f} degrees")
+        printer.important(tmp + f" beta = {beta:7.2f}")
+        printer.important(tmp + f"gamma = {gamma:7.2f}")
+        printer.important("")
 
         # Analyze the results
         self.analyze()

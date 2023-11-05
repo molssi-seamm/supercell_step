@@ -39,7 +39,7 @@ class TkSupercell(seamm.TkNode):
         x=None,
         y=None,
         w=200,
-        h=50
+        h=50,
     ):
         """
         Initialize a graphical node.
@@ -72,7 +72,7 @@ class TkSupercell(seamm.TkNode):
             x=x,
             y=y,
             w=w,
-            h=h
+            h=h,
         )
 
     def create_dialog(self):
@@ -86,7 +86,7 @@ class TkSupercell(seamm.TkNode):
         TkSupercell.reset_dialog
         """
 
-        super().create_dialog(title='Edit Supercell step')
+        super().create_dialog(title="Edit Supercell step")
 
         # The information about widgets is held in self['xxxx'], i.e. this
         # class is in part a dictionary of widgets. This makes accessing
@@ -97,7 +97,7 @@ class TkSupercell(seamm.TkNode):
 
         # Then create the widgets
         for key in P:
-            self[key] = P[key].widget(self['frame'])
+            self[key] = P[key].widget(self["frame"])
 
         # and lay them out
         self.reset_dialog()
@@ -122,7 +122,7 @@ class TkSupercell(seamm.TkNode):
         """
 
         # Remove any widgets previously packed
-        frame = self['frame']
+        frame = self["frame"]
         for slave in frame.grid_slaves():
             slave.grid_forget()
 
@@ -166,7 +166,7 @@ class TkSupercell(seamm.TkNode):
         if self.dialog is None:
             self.create_dialog()
 
-        self.dialog.activate(geometry='centerscreenfirst')
+        self.dialog.activate(geometry="centerscreenfirst")
 
     def handle_dialog(self, result):
         """Handle the closing of the edit dialog
@@ -183,19 +183,17 @@ class TkSupercell(seamm.TkNode):
 
         """
 
-        if result is None or result == 'Cancel':
+        if result is None or result == "Cancel":
             self.dialog.deactivate(result)
             return
 
-        if result == 'Help':
+        if result == "Help":
             # display help!!!
             return
 
         if result != "OK":
             self.dialog.deactivate(result)
-            raise RuntimeError(
-                "Don't recognize dialog result '{}'".format(result)
-            )
+            raise RuntimeError("Don't recognize dialog result '{}'".format(result))
 
         self.dialog.deactivate(result)
         # Shortcut for parameters
@@ -208,7 +206,5 @@ class TkSupercell(seamm.TkNode):
             P[key].set_from_widget()
 
     def handle_help(self):
-        """Shows the help to the user when click on help button.
-
-        """
-        print('Help not implemented yet for Supercell!')
+        """Shows the help to the user when click on help button."""
+        print("Help not implemented yet for Supercell!")

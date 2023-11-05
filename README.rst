@@ -14,11 +14,11 @@ Supercell Step
    :target: https://codecov.io/gh/molssi-seamm/supercell_step
    :alt: Code Coverage
 
-.. image:: https://img.shields.io/lgtm/grade/python/g/molssi-seamm/supercell_step.svg?logo=lgtm&logoWidth=18
-   :target: https://lgtm.com/projects/g/molssi-seamm/supercell_step/context:python
+.. image:: https://github.com/molssi-seamm/supercell_step/workflows/CodeQL/badge.svg
+   :target: https://github.com/molssi-seamm/supercell_step/security/code-scanning
    :alt: Code Quality
 
-.. image:: https://github.com/molssi-seamm/supercell_step/workflows/Documentation/badge.svg
+.. image:: https://github.com/molssi-seamm/supercell_step/workflows/Release/badge.svg
    :target: https://molssi-seamm.github.io/supercell_step/index.html
    :alt: Documentation Status
 
