@@ -85,9 +85,8 @@ class SupercellParameters(seamm.Parameters):
             "format_string": "d",
             "description": "Number of cells in 'a' direction:",
             "help_text": (
-                "The number of cells to create in the 'a' lattice "
-                "direction."
-            )
+                "The number of cells to create in the 'a' lattice direction."
+            ),
         },
         "nb": {
             "default": 2,
@@ -97,9 +96,8 @@ class SupercellParameters(seamm.Parameters):
             "format_string": "d",
             "description": "Number of cells in 'b' direction:",
             "help_text": (
-                "The number of cells to create in the 'b' lattice "
-                "direction."
-            )
+                "The number of cells to create in the 'b' lattice direction."
+            ),
         },
         "nc": {
             "default": 2,
@@ -109,9 +107,8 @@ class SupercellParameters(seamm.Parameters):
             "format_string": "d",
             "description": "Number of cells in 'c' direction:",
             "help_text": (
-                "The number of cells to create in the 'c' lattice "
-                "direction."
-            )
+                "The number of cells to create in the 'c' lattice direction."
+            ),
         },
     }
 
@@ -130,9 +127,8 @@ class SupercellParameters(seamm.Parameters):
 
         """
 
-        logger.debug('SupercellParameters.__init__')
+        logger.debug("SupercellParameters.__init__")
 
         super().__init__(
-            defaults={**SupercellParameters.parameters, **defaults},
-            data=data
+            defaults={**SupercellParameters.parameters, **defaults}, data=data
         )
