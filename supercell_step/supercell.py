@@ -136,7 +136,7 @@ class Supercell(seamm.Node):
         configuration = system_db.system.configuration
 
         if configuration.periodicity != 3:
-            raise RuntimeError("System is not periodic. Cannot make a supercell!")
+            raise ValueError("System is not periodic. Cannot make a supercell!")
 
         na = P["na"]
         nb = P["nb"]
