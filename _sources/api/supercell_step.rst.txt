@@ -9,37 +9,37 @@ supercell\_step.supercell module
 
 .. automodule:: supercell_step.supercell
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 supercell\_step.supercell\_parameters module
 --------------------------------------------
 
 .. automodule:: supercell_step.supercell_parameters
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 supercell\_step.supercell\_step module
 --------------------------------------
 
 .. automodule:: supercell_step.supercell_step
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 supercell\_step.tk\_supercell module
 ------------------------------------
 
 .. automodule:: supercell_step.tk_supercell
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: supercell_step
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
