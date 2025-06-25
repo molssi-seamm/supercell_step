@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Non-graphical part of the Supercell step in a SEAMM flowchart
-"""
+"""Non-graphical part of the Supercell step in a SEAMM flowchart"""
 
 import logging
 import pprint  # noqa: F401
@@ -136,13 +135,17 @@ class Supercell(seamm.Node):
         system_db = self.get_variable("_system_db")
         configuration = system_db.system.configuration
 
+        if configuration.periodicity != 3:
+            raise ValueError("System is not periodic. Cannot make a supercell!")
+
         na = P["na"]
         nb = P["nb"]
         nc = P["nc"]
         logger.debug(f"making {na} x {nb} x {nc} supercell")
 
-        # Lower the symmetry
-        configuration.lower_symmetry()
+        # Lower the symmetry if needed
+        if configuration.symmetry.group != "P 1":
+            configuration.lower_symmetry()
 
         atoms = configuration.atoms
         bonds = configuration.bonds
