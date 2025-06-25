@@ -1,6 +1,8 @@
 =======
 History
 =======
+2025.6.25 -- Bugfix: avoid lowering symmetry for P1 systems.
+
 2023.11.5 -- Updated to handle symmetry in systems
 
 2021.2.12 --
