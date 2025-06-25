@@ -159,6 +159,12 @@ class Supercell(seamm.Node):
         bond_data = bonds.get_as_dict()
         del bond_data["id"]
 
+        # Remove the gradients, if they exist
+        if "gx" in atom_data:
+            del atom_data["gx"]
+            del atom_data["gy"]
+            del atom_data["gz"]
+
         # Get the initial fractional coordinates, adjusting to the final cell
         xyz0 = [
             [x / na, y / nb, z / nc]
@@ -187,6 +193,12 @@ class Supercell(seamm.Node):
             bond_data = bonds.get_as_dict()
             del bond_data["id"]
 
+            # Remove the gradients, if they exist
+            if "gx" in atom_data:
+                del atom_data["gx"]
+                del atom_data["gy"]
+                del atom_data["gz"]
+
             # Keep a copy of the current coordinates
             xyz0 = list(xyzs)
 
@@ -210,6 +222,12 @@ class Supercell(seamm.Node):
             del atom_data["id"]
             bond_data = bonds.get_as_dict()
             del bond_data["id"]
+
+            # Remove the gradients, if they exist
+            if "gx" in atom_data:
+                del atom_data["gx"]
+                del atom_data["gy"]
+                del atom_data["gz"]
 
             # Keep a copy of the current coordinates
             xyz0 = list(xyzs)
