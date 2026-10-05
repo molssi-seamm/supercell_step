@@ -38,16 +38,18 @@ def test_git_revision():
 def test_description_text_default(instance):
     """Test the default description text"""
 
+    text = instance.description_text()
     assert (
-        re.fullmatch(
+        re.match(
             (
                 r"Step 1: Supercell  [-+.0-9a-z]+\n"
-                r"    Create a 2 x 2 x 2 supercell from the current cell"
+                r"    Create a 2 x 2 x 2 supercell from the current cell\. "
             ),
-            instance.description_text(),
+            text,
         )
         is not None
     )
+    assert "overwrite the current configuration" in " ".join(text.split())
 
 
 def test_description_text_expr_expr(instance):
@@ -57,7 +59,7 @@ def test_description_text_expr_expr(instance):
         re.fullmatch(
             (
                 r"Step 1: Supercell  [-+.0-9a-z]+\n"
-                r"    Create a 5 x 4 x 3 supercell from the current cell"
+                r"    Create a 5 x 4 x 3 supercell from the current cell\."
             ),
             instance.description_text(
                 {
