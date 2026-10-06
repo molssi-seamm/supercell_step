@@ -71,6 +71,16 @@ CUBIC_STEP = textwrap.dedent('''
 ''')
 
 
+SYMMETRIC_PAIR = """\
+        configuration.symmetry.group = "P -1"
+        configuration.cell.parameters = [3.0, 3.0, 3.0, 90.0, 90.0, 90.0]
+        ids = configuration.atoms.append(x=[0.1], y=[0.0], z=[0.0], symbol=["N"])
+        configuration.bonds.append(
+            i=[ids[0]], j=[ids[0]], bondorder=[3], symop1=["."], symop2=["2"]
+        )
+"""
+
+
 def test_choices_and_defaults():
     P = SupercellParameters()
     handling = P["structure handling"]
@@ -86,7 +96,13 @@ def test_choices_and_defaults():
 
 
 def run_supercell(
-    tmp_path, na=2, nb=1, nc=1, coordinate_system="Fractional", **parameters
+    tmp_path,
+    na=2,
+    nb=1,
+    nc=1,
+    coordinate_system="Fractional",
+    symmetric=False,
+    **parameters,
 ):
     testing = pytest.importorskip("seamm_exec.testing")
     site = tmp_path / "cubic_site"
@@ -99,6 +115,12 @@ def run_supercell(
             'coordinate_system="Fractional"', 'coordinate_system="Cartesian"'
         )
         step = step.replace("x=[0.25, 0.5]", "x=[0.75, 1.5]")
+    if symmetric:
+        # P -1: one N at (0.1, 0, 0) bonded to its inverse, 0.6 Å away
+        old = step[
+            step.index("        configuration.cell") : step.index("        db.system")
+        ]
+        step = step.replace(old, SYMMETRIC_PAIR)
     (site / "seamm_test_cubic.py").write_text(step)
     (info / "METADATA").write_text(
         "Metadata-Version: 2.1\nName: seamm-test-cubic\nVersion: 0.1\n"
@@ -216,3 +238,22 @@ def test_bonds_in_a_3x2x1_supercell(tmp_path, coordinate_system, handling):
     finally:
         db.close()
     assert lengths == pytest.approx([0.75] * 6)
+
+
+def test_overwrite_a_symmetric_structure_with_bonds(tmp_path):
+    """P -1, lowered to P1 in place (molsystem >= 2026.10.6), then 2 x 1 x 1."""
+    from molsystem import SystemDB
+
+    job, systems, configurations, cells, n_atoms, n_bonds = run_supercell(
+        tmp_path, symmetric=True
+    )
+    (only,) = configurations
+    assert n_atoms[only[4]] == 4 and n_bonds[only[0]] == 2
+    db = SystemDB(filename=str(job / "seamm.db"))
+    try:
+        configuration = db.system.configuration
+        assert configuration.symmetry.n_symops == 1  # no symmetry left
+        lengths = configuration.bonds.get_lengths()
+    finally:
+        db.close()
+    assert lengths == pytest.approx([0.6, 0.6])
