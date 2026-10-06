@@ -10,7 +10,8 @@ History
     * Bugfix: a supercell of a structure with bonds failed (the atoms' row positions
       were taken for their ids), as did one three or more cells long in any direction
       (the bonds of each copy were mapped from the previous copy's).
-    * Builds again from its source distribution; requires seamm 2026.10.3.
+    * Builds again from its source distribution; requires seamm 2026.10.3 and
+      molsystem 2026.10.6, which lowers the symmetry of structures with bonds.
 
 2025.6.25.1 -- Bugfix: fixed crash caused by gradients.
     * The addition of the gradients to the atom data caused a crash when expanding the
