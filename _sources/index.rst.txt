@@ -1,6 +1,6 @@
-=============
+==============
 Supercell Step
-=============
+==============
 
 Supercell creates a supercell of the current structure. At the moment only simple
 supercells, i.e. ones that i x j x k times the size of the original cell are supported.
