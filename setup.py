@@ -42,6 +42,8 @@ setup(
                'Unix',
                'Windows'],
     zip_safe=True,
+    # The run-path tests use seamm_exec.testing
+    extras_require={'test': ['seamm-exec>=2026.10.5.2']},
 
     keywords=['SEAMM', 'plug-in', 'flowchart', 'supercell', 'unitcell',
               'periodic', 'atomistic'],
@@ -53,8 +55,8 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     entry_points={
         'org.molssi.seamm': [

@@ -101,9 +101,55 @@ class Supercell(seamm.Node):
         if not P:
             P = self.parameters.values_to_dict()
 
-        text = "Create a {na} x {nb} x {nc} supercell from the current cell"
+        text = "Create a {na} x {nb} x {nc} supercell from the current cell."
+        if "structure handling" in P:
+            text += " " + seamm.standard_parameters.structure_handling_description(P)
 
         return self.header + "\n" + __(text, **P, indent=4 * " ").__str__()
+
+    def _p1_copy(self, system, other):
+        """A new, current configuration of ``system``: ``other`` in P1, with
+        atoms, bonds and cell of its own.
+
+        The supercell adds atoms and bonds, which a copy sharing the atoms
+        (``copy_configuration``) would add to the original too. This is what
+        ``lower_symmetry(other=...)`` intends, but molsystem's copies the source's
+        configuration id with the atoms, so their coordinates land on the source.
+        """
+        configuration = system.create_configuration(
+            periodicity=3,
+            coordinate_system=other.coordinate_system,
+            make_current=True,
+        )
+        configuration.cell.parameters = other.cell.parameters
+
+        # The atoms and bonds in low symmetry
+        atom_data = other.atoms.get_as_dict()
+        del atom_data["id"]
+        del atom_data["configuration"]
+        for key in ("vx", "vy", "vz", "gx", "gy", "gz"):
+            atom_data.pop(key, None)
+        bond_data = other.bonds.get_as_dict()
+        del bond_data["id"]
+
+        ids = configuration.atoms.append(**atom_data)
+        # get_as_dict() gives a periodic system's fractional coordinates, which
+        # append() takes as Cartesian in a Cartesian configuration, so set them
+        configuration.atoms.set_coordinates(
+            other.atoms.get_coordinates(fractionals=True), fractionals=True
+        )
+        if len(bond_data["i"]) > 0:
+            atom_ids = other.atoms.ids
+            index = {j: i for i, j in enumerate(atom_ids)}
+            bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
+            bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+            configuration.bonds.append(**bond_data)
+
+        configuration.charge = other.charge
+        configuration.spin_multiplicity = other.spin_multiplicity
+        configuration.n_active_electrons = other.n_active_electrons
+        configuration.n_active_orbitals = other.n_active_orbitals
+        return configuration
 
     def run(self):
         """Create the supercell.
@@ -131,11 +177,11 @@ class Supercell(seamm.Node):
         # Print what we are doing
         printer.important(__(self.description_text(P), indent=self.indent))
 
-        # Get the current system
+        # The current system and configuration
         system_db = self.get_variable("_system_db")
-        configuration = system_db.system.configuration
+        starting_system, starting = self.get_system_configuration(None)
 
-        if configuration.periodicity != 3:
+        if starting.periodicity != 3:
             raise ValueError("System is not periodic. Cannot make a supercell!")
 
         na = P["na"]
@@ -143,9 +189,19 @@ class Supercell(seamm.Node):
         nc = P["nc"]
         logger.debug(f"making {na} x {nb} x {nc} supercell")
 
-        # Lower the symmetry if needed
-        if configuration.symmetry.group != "P 1":
-            configuration.lower_symmetry()
+        handling = P["structure handling"]
+        if handling == "Overwrite the current configuration":
+            system, configuration = starting_system, starting
+            # Lower the symmetry if needed
+            if configuration.symmetry.group != "P 1":
+                configuration.lower_symmetry()
+        else:
+            if handling == "Create a new system and configuration":
+                system = system_db.create_system()
+            else:
+                system = starting_system
+            configuration = self._p1_copy(system, starting)
+            system_db.system = system
 
         atoms = configuration.atoms
         bonds = configuration.bonds
@@ -154,7 +210,8 @@ class Supercell(seamm.Node):
         # Get a copy of the initial atom and bond data
         atom_data = atoms.get_as_dict()
         # index of atoms to use for bonds
-        index = {j: i for i, j in enumerate(atom_data["id"])}
+        # The bonds name atoms by id; get_as_dict()["id"] holds row positions
+        index = {j: i for i, j in enumerate(atoms.ids)}
         del atom_data["id"]
         bond_data = bonds.get_as_dict()
         del bond_data["id"]
@@ -174,6 +231,8 @@ class Supercell(seamm.Node):
 
         # Expand the cell along 'a'
         if na > 1:
+            # Each copy's bonds are mapped from the original's, not the last copy's
+            bond_i, bond_j = bond_data["i"], bond_data["j"]
             for ia in range(1, na):
                 # Coordinates
                 for x, y, z in xyz0:
@@ -181,14 +240,15 @@ class Supercell(seamm.Node):
                 # Atoms
                 ids = atoms.append(**atom_data)
                 # Bonds
-                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
-                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bond_data["i"] = [ids[index[i]] for i in bond_i]
+                bond_data["j"] = [ids[index[j]] for j in bond_j]
                 bonds.append(**bond_data)
 
             # Get a copy of the current atom and bond data
             atom_data = atoms.get_as_dict()
             # index of atoms to use for bonds
-            index = {j: i for i, j in enumerate(atom_data["id"])}
+            # The bonds name atoms by id; get_as_dict()["id"] holds row positions
+            index = {j: i for i, j in enumerate(atoms.ids)}
             del atom_data["id"]
             bond_data = bonds.get_as_dict()
             del bond_data["id"]
@@ -204,6 +264,8 @@ class Supercell(seamm.Node):
 
         # Expand the cell along 'b'
         if nb > 1:
+            # Each copy's bonds are mapped from the original's, not the last copy's
+            bond_i, bond_j = bond_data["i"], bond_data["j"]
             for ib in range(1, nb):
                 # Coordinates
                 for x, y, z in xyz0:
@@ -211,14 +273,15 @@ class Supercell(seamm.Node):
                 # Atoms
                 ids = atoms.append(**atom_data)
                 # Bonds
-                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
-                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bond_data["i"] = [ids[index[i]] for i in bond_i]
+                bond_data["j"] = [ids[index[j]] for j in bond_j]
                 bonds.append(**bond_data)
 
             # Get a copy of the current atom and bond data
             atom_data = atoms.get_as_dict()
             # index of atoms to use for bonds
-            index = {j: i for i, j in enumerate(atom_data["id"])}
+            # The bonds name atoms by id; get_as_dict()["id"] holds row positions
+            index = {j: i for i, j in enumerate(atoms.ids)}
             del atom_data["id"]
             bond_data = bonds.get_as_dict()
             del bond_data["id"]
@@ -234,6 +297,8 @@ class Supercell(seamm.Node):
 
         # Expand the cell along 'c'
         if nc > 1:
+            # Each copy's bonds are mapped from the original's, not the last copy's
+            bond_i, bond_j = bond_data["i"], bond_data["j"]
             for ic in range(1, nc):
                 # Coordinates
                 for x, y, z in xyz0:
@@ -241,8 +306,8 @@ class Supercell(seamm.Node):
                 # Atoms
                 ids = atoms.append(**atom_data)
                 # Bonds
-                bond_data["i"] = [ids[index[i]] for i in bond_data["i"]]
-                bond_data["j"] = [ids[index[j]] for j in bond_data["j"]]
+                bond_data["i"] = [ids[index[i]] for i in bond_i]
+                bond_data["j"] = [ids[index[j]] for j in bond_j]
                 bonds.append(**bond_data)
 
         # Update the cell
@@ -276,6 +341,24 @@ class Supercell(seamm.Node):
         printer.important(tmp + f"alpha = {alpha:7.2f} degrees")
         printer.important(tmp + f" beta = {beta:7.2f}")
         printer.important(tmp + f"gamma = {gamma:7.2f}")
+        printer.important("")
+
+        # Names: "keep current name" carries the names over to a new system or
+        # configuration
+        names = dict(P)
+        if names["configuration name"] == supercell_step.SUPERCELL_NAME:
+            names["configuration name"] = f"{na} x {nb} x {nc} supercell"
+        if (
+            system is not starting_system
+            and names["system name"] == "keep current name"
+        ):
+            system.name = starting_system.name
+        if configuration.id != starting.id and names["configuration name"] == (
+            "keep current name"
+        ):
+            configuration.name = starting.name
+        text = seamm.standard_parameters.set_names(system, configuration, names)
+        printer.important(__(text, indent=self.indent + 4 * " "))
         printer.important("")
 
         # Analyze the results

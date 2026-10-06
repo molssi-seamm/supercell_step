@@ -5,6 +5,7 @@ Control parameters for the Supercell step in a SEAMM flowchart
 
 import logging
 import seamm
+import supercell_step
 
 logger = logging.getLogger(__name__)
 
@@ -130,5 +131,10 @@ class SupercellParameters(seamm.Parameters):
         logger.debug("SupercellParameters.__init__")
 
         super().__init__(
-            defaults={**SupercellParameters.parameters, **defaults}, data=data
+            defaults={
+                **SupercellParameters.parameters,
+                **supercell_step.structure_handling_parameters,
+                **defaults,
+            },
+            data=data,
         )
