@@ -1,7 +1,7 @@
 =======
 History
 =======
-2026.10.5 -- SEAMM's standard choices for the supercell; bugfixes for bonded systems
+2026.10.6 -- SEAMM's standard choices for the supercell; bugfixes for bonded systems
     * The supercell can overwrite the current configuration (the default, as before),
       go in a new configuration or in a new system, with SEAMM's standard choices and
       names; the original is left as it was in the latter two. Names are kept by
